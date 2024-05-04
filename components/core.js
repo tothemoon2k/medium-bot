@@ -31,11 +31,9 @@ const login = async (page) => {
 }
 
 const grabArticles = async (page) => {
-    /*
-    await autoScroll(page);
-    */
-
     await page.waitForSelector("article a");
+
+    await autoScroll(page, 5);
 
     const articles = await page.$$eval('article a', anchors =>
         Array.from(new Set(
@@ -46,23 +44,6 @@ const grabArticles = async (page) => {
     );
 
     return(articles);
-
-    /*
-    let count = 0;
-    let formattedArticles = [];
-
-    for (const article of articles) {
-        const href = await article.evaluate((el) => el.href);
-        const text = await article.evaluate((el) => el.textContent);
-        if(href.includes('@')){
-            formattedArticles.push({href: href, text: text});
-            count++
-        }
-    }
-
-    console.log(`Total articles found: ${count}`);
-    return(formattedArticles);
-    */
 }
 
 const writeArticle = async (page, link) => {

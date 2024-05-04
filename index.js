@@ -19,11 +19,13 @@ const run = async () => {
     
     await login(page);
 
-    await page.waitForNavigation();
-
+    await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
     await page.goto('https://medium.com/?tag=money');
 
+
     const articles = await grabArticles(page);
+
+    console.log(articles.length)
 
     for(let article of articles){
         try {

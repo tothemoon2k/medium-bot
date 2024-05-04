@@ -1,23 +1,19 @@
 const autoScroll = async (page, maxScrolls = 10) => {
-    let scrolls = 0;
+    const scrollHeight = 'document.body.scrollHeight';
 
-    await page.evaluate(async (maxScrolls) => {
-        await new Promise((resolve, reject) => {
-            const scrollInterval = setInterval(() => {
-                window.scrollBy(0, window.innerHeight);
-                scrolls++;
-                console.log(scrolls)
+    for (let i = 0; i < maxScrolls; i++) {
+        const lastHeight = await page.evaluate(scrollHeight);
 
-                if (scrolls >= maxScrolls || window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-                    clearInterval(scrollInterval);
-                    resolve();
-                }
-            }, 100);
-        });
-    }, maxScrolls);
+        await page.evaluate(`window.scrollBy(0, ${scrollHeight})`);
+
+        await page.waitForFunction(
+            newHeight => document.body.scrollHeight > newHeight,
+            {}, lastHeight
+        );
+    }
 };
 
-const delay = () => {
+const delay = (time) => {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
     });
