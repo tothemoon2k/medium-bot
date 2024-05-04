@@ -17,4 +17,10 @@ const autoScroll = async (page, maxScrolls = 10) => {
     }, maxScrolls);
 };
 
-module.exports = {autoScroll};
+const delay = () => {
+    return new Promise(function(resolve) { 
+        setTimeout(resolve, time)
+    });
+}
+
+module.exports = {autoScroll, delay};

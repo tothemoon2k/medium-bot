@@ -3,23 +3,15 @@ const fs = require('fs');
 require('dotenv').config();
 
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
+const {delay} = require("./components/helper");
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
-}
-
-const test = async () => {
+const run = async () => {
     const browser = await puppeteer.launch({
         headless: false,
-        // headless: "new",
-        // devtools: true,
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true,
-        //Executable path for mac
         executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     });
 
@@ -27,11 +19,9 @@ const test = async () => {
     
     await login(page);
 
-    await delay(5000);
+    await page.waitForNavigation();
 
     await page.goto('https://medium.com/?tag=money');
-
-    await delay(5000);
 
     const articles = await grabArticles(page);
 
@@ -43,14 +33,9 @@ const test = async () => {
     
             await polishArticle(page, res);
     
-            await delay(1000);
-    
             await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
-
-            continue;
         } catch (error) {
             console.log("Article didn't work ☹️", error);
-            continue;
         }
     }
 
@@ -64,5 +49,5 @@ const test = async () => {
     */
 }
 
-test();
+run();
 

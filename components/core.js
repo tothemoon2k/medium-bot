@@ -1,12 +1,10 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { autoScroll } = require("./helper");
+const { autoScroll, delay } = require("./helper");
 const {generatePrompt} = require("./prompts");
 
-function delay(time) {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
-}
+const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_KEY,
+});
 
 const login = async (page) => {
     await page.goto('https://medium.com');
@@ -36,6 +34,8 @@ const grabArticles = async (page) => {
     /*
     await autoScroll(page);
     */
+
+    await page.waitForSelector("article a");
 
     const articles = await page.$$eval('article a', anchors =>
         Array.from(new Set(
@@ -79,39 +79,29 @@ const writeArticle = async (page, link) => {
         return elements.map(element => element.textContent);
     });
 
-    const articleBody = paragraphs.join('\n'); // Use '\n' to separate paragraphs
-
-    console.log(headline, articleBody);
+    const articleBody = paragraphs.join('\n');
 
     await page.goto("https://medium.com/new-story");
-
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_KEY,
-    });
 
     const msg = await anthropic.messages.create({
         model: "claude-3-haiku-20240307",
         max_tokens: 4000,
         messages: [{ role: "user", content: generatePrompt(headline, articleBody) }],
     });
-
-    console.log(msg.content[0].text);
     
     let obj = JSON.parse(msg.content[0].text);
 
-    console.log(obj)
-
     await page.waitForSelector('h3');
-    const elementToClick = await page.$('h3');
+    const headlineInput = await page.$('h3');
 
-    await elementToClick.click();
-    await elementToClick.type(obj.headline, { delay: 50 });
+    await headlineInput.click();
+    await headlineInput.type(obj.headline, { delay: 50 });
 
     await page.waitForSelector('p[data-testid="editorParagraphText"]');
-    const elementToType = await page.$('p[data-testid="editorParagraphText"]');
+    const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
     
-    await elementToType.click();
-    await elementToType.type(obj.articleBody);
+    await articleBodyInput.click();
+    await articleBodyInput.type(obj.articleBody);
 
     return(obj);
 
@@ -129,6 +119,8 @@ const polishArticle = async (page, res) => {
     await page.click('[data-testid="editorParagraphText"]');
 
     await page.type('[data-testid="editorParagraphText"]', "hello\nhello2", {delay: 250});
+
+    await delay(2000);
 }
 
 module.exports = {login, grabArticles, writeArticle, polishArticle};
