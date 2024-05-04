@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer-extra');
 const fs = require('fs');
-require('dotenv').config()
+require('dotenv').config();
+
+const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
@@ -22,27 +24,8 @@ const test = async () => {
     });
 
     const page = await browser.newPage();
-    await page.goto('https://medium.com');
-    await page.waitForNetworkIdle();
-
-    await page.click('button.cg.ch.ci.cj.ck.cl.cm.cn.co.cp.cq.cr.cs.ct.cu.cv.cw.cx.cy.cz');
-
-    await page.waitForNetworkIdle();
-
-    const links = await page.$$eval('a', links => {
-        return links.map(link => link.href) 
-    })
-
-    const facebookUrl = links.find(url => url.includes('facebook'));
-
-    await page.goto(facebookUrl);
-
-    await page.waitForNetworkIdle();
-
-    await page.type('#email', process.env.FACEBOOK_LOGIN_EMAIL);
-    await page.type('#pass', process.env.FACEBOOK_LOGIN_PASSWORD);
-
-    await page.click('#loginbutton');
+    
+    await login(page);
 
     await delay(5000);
 
@@ -50,45 +33,34 @@ const test = async () => {
 
     await delay(5000);
 
-    async function autoScroll(page){
-        await page.evaluate(async () => {
-            await new Promise((resolve, reject) => {
-                var totalHeight = 0;
-                var distance = 100;
-                var timer = setInterval(() => {
-                    var scrollHeight = document.body.scrollHeight;
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
+    const articles = await grabArticles(page);
 
-                    if(totalHeight >= scrollHeight){
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 100);
-            });
-        });
-    }
+    console.log(articles)
 
-    await autoScroll(page);
+    for(let article of articles){
+        try {
+            const res = await writeArticle(page, article.href);
 
-    let articles = await page.$$('a.az.ak.ba.bb.bc.an.bd.w.ao.ap.aq.ar.as.at.au');
-
-    let count = 0;
-    for (const article of articles) {
-
-        const href = await article.evaluate((el) => el.href);
-        const text = await article.evaluate((el) => el.textContent);
-        if(href.includes('@')){
-            console.log(`URL: ${href}`);
-            console.log(`Text: ${text}`);
-            console.log('---');
-            count++
+            await page.click('button[data-action="show-prepublish"]');
+    
+            await polishArticle(page, res);
+    
+            await delay(1000);
+    
+            await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
+        } catch (error) {
+            console.log("Article didn't work ☹️", error);
         }
     }
 
-    console.log(count);
+    
 
-    //await page.click('a[data-testid="headerWriteButton"]');
+    /*
+    await page.waitForSelector('div.js-customTitleControlSubtitle');
+    const hookElement = await page.$('div.js-customTitleControlSubtitle');
+    await hookElement.click();
+    await hookElement.type(res.hook, { delay: 150 })
+    */
 }
 
 test();
