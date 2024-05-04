@@ -37,8 +37,17 @@ const grabArticles = async (page) => {
     await autoScroll(page);
     */
 
-    let articles = await page.$$('div.s a');
+    const articles = await page.$$eval('article a', anchors =>
+        Array.from(new Set(
+            anchors
+                .map(anchor => anchor.href)
+                .filter(href => /https:\/\/medium\.com\/(@[a-zA-Z0-9]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+)(\?source=.*)?/g.test(href))
+            ))
+    );
 
+    return(articles);
+
+    /*
     let count = 0;
     let formattedArticles = [];
 
@@ -53,6 +62,7 @@ const grabArticles = async (page) => {
 
     console.log(`Total articles found: ${count}`);
     return(formattedArticles);
+    */
 }
 
 const writeArticle = async (page, link) => {
@@ -118,12 +128,7 @@ const polishArticle = async (page, res) => {
 
     await page.click('[data-testid="editorParagraphText"]');
 
-    await page.evaluate(() => {
-        const element = document.querySelector('[data-testid="editorParagraphText"]');
-        element.innerHTML = '';
-    });
-
-    await page.type('[data-testid="editorParagraphText"]', keywordStr, {delay: 250});
+    await page.type('[data-testid="editorParagraphText"]', "hello\nhello2", {delay: 250});
 }
 
 module.exports = {login, grabArticles, writeArticle, polishArticle};

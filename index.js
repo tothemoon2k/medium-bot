@@ -35,11 +35,9 @@ const test = async () => {
 
     const articles = await grabArticles(page);
 
-    console.log(articles)
-
     for(let article of articles){
         try {
-            const res = await writeArticle(page, article.href);
+            const res = await writeArticle(page, article);
 
             await page.click('button[data-action="show-prepublish"]');
     
@@ -48,8 +46,11 @@ const test = async () => {
             await delay(1000);
     
             await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
+
+            continue;
         } catch (error) {
             console.log("Article didn't work ☹️", error);
+            continue;
         }
     }
 
