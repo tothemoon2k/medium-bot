@@ -90,16 +90,30 @@ const writeArticle = async (page, link) => {
 
 const polishArticle = async (page, res) => {
     await delay(2000);
-
-    const keywordStr = res.keywords.map(str => str.trim()).join('\n') + '\n';
-
-    console.log(keywordStr);
-
+    
+    /*
     await page.waitForSelector('[data-testid="editorParagraphText"]');
 
     await page.click('[data-testid="editorParagraphText"]');
 
     await page.type('[data-testid="editorParagraphText"]', "hello\nhello2", {delay: 250});
+    */
+
+    const inputField = await page.$('.js-tagInput.tags-input.editable');
+
+    const keywordStr = res.keywords.map(str => str.trim()).join(', ') + ',';
+
+    console.log(keywordStr);
+
+    if (inputField) {
+        await inputField.click();
+
+        await page.type('.js-tagInput.tags-input.editable', keywordStr);
+
+        await delay(2000);
+    } else {
+        console.error('Input field not found.');
+    }
 
     await delay(2000);
 }

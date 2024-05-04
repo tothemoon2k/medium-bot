@@ -36,6 +36,8 @@ const run = async () => {
             await polishArticle(page, res);
     
             await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
+
+            await delay(5000);
         } catch (error) {
             console.log("Article didn't work ☹️", error);
         }
