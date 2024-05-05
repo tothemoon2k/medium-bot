@@ -23,7 +23,7 @@ const run = async () => {
 
     const page = await browser.newPage();
     
-    console.log("Logging in...");
+    console.log(`Logging into ${author.name}...`);
     try {
         await login(page, author);
         console.log("Login Success")
@@ -49,8 +49,8 @@ const run = async () => {
 
     for(let article of articles){
         try {
-            console.log("Writing an article...")
             const res = await writeArticle(page, article);
+            console.log("Writing an article...");
 
             await page.click('button[data-action="show-prepublish"]');
     
