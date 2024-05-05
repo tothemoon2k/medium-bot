@@ -33,7 +33,7 @@ const login = async (page, author) => {
 const grabArticles = async (page) => {
     await page.waitForSelector("article a");
 
-    await autoScroll(page, 5);
+    await autoScroll(page, 20);
 
     const articles = await page.$$eval('article a', anchors =>
         Array.from(new Set(
@@ -46,6 +46,27 @@ const grabArticles = async (page) => {
     return(articles);
 }
 
+const generateMessage = async (headline, articleBody) => {
+    const prompt = generatePrompt(headline, articleBody);
+    const requestParams = {
+      model: "claude-3-haiku-20240307",
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }],
+    };
+  
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await anthropic.messages.create(requestParams);
+        return JSON.parse(response.content[0].text);
+      } catch (error) {
+        console.error(`Failed to generate message (Attempt #${attempt + 1}):`, error);
+      }
+    }
+  
+    console.error("Failed to generate message after two attempts.");
+    return null;
+ };
+
 const writeArticle = async (page, link) => {
     await page.goto(link);
 
@@ -55,8 +76,6 @@ const writeArticle = async (page, link) => {
         'div.pw-multi-vote-count button',
         (button) => button.textContent.trim()
     );
-
-    console.log(claps)
     
     if(!claps.includes("K")){
         throw new Error('Article does not have at least 1k claps');
@@ -73,31 +92,11 @@ const writeArticle = async (page, link) => {
 
     await page.goto("https://medium.com/new-story");
 
-    const msg = await anthropic.messages.create({
-        model: "claude-3-haiku-20240307",
-        max_tokens: 4000,
-        messages: [{ role: "user", content: generatePrompt(headline, articleBody) }],
-    });
 
-    //try catch with trying claude again
 
-    let obj
+    const obj = await generateMessage(headline, articleBody);
 
-    try {
-        obj = JSON.parse(msg.content[0].text);
-    } catch (error) {
-        console.log(error);
 
-        console.log("JSON Failed. Trying to generate json again.")
-
-        const msg = await anthropic.messages.create({
-            model: "claude-3-haiku-20240307",
-            max_tokens: 4000,
-            messages: [{ role: "user", content: generatePrompt(headline, articleBody) }],
-        });
-
-        obj = JSON.parse(msg.content[0].text);
-    }
 
     await page.waitForSelector('h3');
     const headlineInput = await page.$('h3');
