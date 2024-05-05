@@ -16,25 +16,40 @@ puppeteer.use(StealthPlugin());
 
 const run = async () => {
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true,
         executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     });
 
     const page = await browser.newPage();
     
-    await login(page, author);
-
+    console.log("Logging in...");
+    try {
+        await login(page, author);
+        console.log("Login Success")
+    } catch (error) {
+        console.log("Login failed...");
+        browser.close();
+    }
+    
+    console.log("Navigating to topic page...")
     await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
     await page.goto(`https://medium.com/?tag=${author.topic}`);
 
+    console.log(`Scrapping ${author.topic} topic page...`);
 
-    const articles = await grabArticles(page);
+    let articles;
 
-    console.log(articles.length)
+    try {
+        articles = await grabArticles(page);
+        console.log(`Successfully scrapped ${author.topic} topic page and gathered ${articles.length}`)
+    } catch (error) {
+        console.log(`There was an error scrapping ${author.topic} topic page`, error);
+    }
 
     for(let article of articles){
         try {
+            console.log("Writing an article...")
             const res = await writeArticle(page, article);
 
             await page.click('button[data-action="show-prepublish"]');
@@ -54,18 +69,9 @@ const run = async () => {
                 break;
             }
         } catch (error) {
-            console.log("Article didn't work ☹️", error);
+            console.log("An error occurred with this article", error);
         }
     }
-
-    /*
-    Custom Hook
-
-    await page.waitForSelector('div.js-customTitleControlSubtitle');
-    const hookElement = await page.$('div.js-customTitleControlSubtitle');
-    await hookElement.click();
-    await hookElement.type(res.hook, { delay: 150 })
-    */
 }
 
 try {
