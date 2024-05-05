@@ -6,7 +6,7 @@ const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_KEY,
 });
 
-const login = async (page) => {
+const login = async (page, author) => {
     await page.goto('https://medium.com');
     await page.waitForNetworkIdle();
 
@@ -24,8 +24,8 @@ const login = async (page) => {
 
     await page.waitForNetworkIdle();
 
-    await page.type('#email', process.env.FACEBOOK_LOGIN_EMAIL, { delay: 250 });
-    await page.type('#pass', process.env.FACEBOOK_LOGIN_PASSWORD, { delay: 250 });
+    await page.type('#email', author.email, { delay: 250 });
+    await page.type('#pass', author.pass, { delay: 250 });
 
     await page.click('#loginbutton');
 }
@@ -49,9 +49,18 @@ const grabArticles = async (page) => {
 const writeArticle = async (page, link) => {
     await page.goto(link);
 
-    await page.waitForSelector('h1[data-testid="storyTitle"]', { timeout: 5000 });
+    await page.waitForSelector('div.pw-multi-vote-count button');
 
-    await delay(2000);
+    const claps = await page.$eval(
+        'div.pw-multi-vote-count button',
+        (button) => button.textContent.trim()
+    );
+
+    console.log(claps)
+    
+    if(!claps.includes("K")){
+        throw new Error('Article does not have at least 1k claps');
+    }
 
     const h1 = await page.$('h1[data-testid="storyTitle"]');
     const headline = await page.evaluate(element => element.textContent, h1);
@@ -69,14 +78,32 @@ const writeArticle = async (page, link) => {
         max_tokens: 4000,
         messages: [{ role: "user", content: generatePrompt(headline, articleBody) }],
     });
-    
-    let obj = JSON.parse(msg.content[0].text);
+
+    //try catch with trying claude again
+
+    let obj
+
+    try {
+        obj = JSON.parse(msg.content[0].text);
+    } catch (error) {
+        console.log(error);
+
+        console.log("JSON Failed. Trying to generate json again.")
+
+        const msg = await anthropic.messages.create({
+            model: "claude-3-haiku-20240307",
+            max_tokens: 4000,
+            messages: [{ role: "user", content: generatePrompt(headline, articleBody) }],
+        });
+
+        obj = JSON.parse(msg.content[0].text);
+    }
 
     await page.waitForSelector('h3');
     const headlineInput = await page.$('h3');
 
     await headlineInput.click();
-    await headlineInput.type(obj.headline, { delay: 50 });
+    await headlineInput.type(obj.headline, { delay: 150 });
 
     await page.waitForSelector('p[data-testid="editorParagraphText"]');
     const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
@@ -85,35 +112,16 @@ const writeArticle = async (page, link) => {
     await articleBodyInput.type(obj.articleBody);
 
     return(obj);
-
 }
 
 const polishArticle = async (page, res) => {
     await delay(2000);
-    
-    /*
-    await page.waitForSelector('[data-testid="editorParagraphText"]');
-
-    await page.click('[data-testid="editorParagraphText"]');
-
-    await page.type('[data-testid="editorParagraphText"]', "hello\nhello2", {delay: 250});
-    */
-
-    const inputField = await page.$('.js-tagInput.tags-input.editable');
 
     const keywordStr = res.keywords.map(str => str.trim()).join(', ') + ',';
 
-    console.log(keywordStr);
-
-    if (inputField) {
-        await inputField.click();
-
-        await page.type('.js-tagInput.tags-input.editable', keywordStr);
-
-        await delay(2000);
-    } else {
-        console.error('Input field not found.');
-    }
+    const inputField = await page.$('.js-tagInput.tags-input.editable')
+    await inputField.click();
+    await page.type('.js-tagInput.tags-input.editable', keywordStr, {delay: 250});
 
     await delay(2000);
 }

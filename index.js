@@ -1,12 +1,18 @@
+require('dotenv').config();
 const puppeteer = require('puppeteer-extra');
 const fs = require('fs');
-require('dotenv').config();
 
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
 const {delay} = require("./components/helper");
+const {authors} = require("./components/authors");
+const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
+
+
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
+
+
 
 const run = async () => {
     const browser = await puppeteer.launch({
@@ -17,10 +23,10 @@ const run = async () => {
 
     const page = await browser.newPage();
     
-    await login(page);
+    await login(page, author);
 
     await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
-    await page.goto('https://medium.com/?tag=money');
+    await page.goto(`https://medium.com/?tag=${author.topic}`);
 
 
     const articles = await grabArticles(page);
@@ -37,15 +43,24 @@ const run = async () => {
     
             await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
 
-            await delay(5000);
+            await delay(8000);
+
+            try {
+                await page.waitForSelector('h3[data-testid="publishSuccessTitleText"]');
+                console.log("Successfully posted an article");
+            } catch (error) {
+                console.log("Maximum Articles Posted");
+                browser.close();
+                break;
+            }
         } catch (error) {
             console.log("Article didn't work ☹️", error);
         }
     }
 
-    
-
     /*
+    Custom Hook
+
     await page.waitForSelector('div.js-customTitleControlSubtitle');
     const hookElement = await page.$('div.js-customTitleControlSubtitle');
     await hookElement.click();
@@ -53,5 +68,9 @@ const run = async () => {
     */
 }
 
-run();
+try {
+    run();
+} catch (error) {
+    console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error)
+}
 
