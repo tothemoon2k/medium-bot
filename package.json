@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node index",
-    "build": "./render-build.sh"
+    "build": "npm install"
   },
   "author": "JTG",
   "license": "ISC",
