@@ -50,10 +50,9 @@ const run = async () => {
         await delay(3000);
 
         const screenshotBuffer = await page.screenshot();
-        fs.writeFileSync('screenshot.png', screenshotBuffer);
     
         const formData = new FormData();
-        formData.append('image', fs.createReadStream('screenshot.png'));
+        formData.append('image', screenshotBuffer, 'screenshot.png');
     
         try {
         const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
