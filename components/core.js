@@ -14,9 +14,9 @@ const login = async (page, author) => {
 
     await screenShot(page);
 
-    await page.click('button.cg.ch.ci.cj.ck.cl.cm.cn.co.cp.cq.cr.cs.ct.cu.cv.cw.cx.cy.cz');
+    await page.goto("https://medium.com/m/signin");
 
-    await page.waitForNetworkIdle();
+    await delay(2000);
 
     await screenShot(page);
 
@@ -28,7 +28,7 @@ const login = async (page, author) => {
 
     await page.goto(facebookUrl);
 
-    await page.waitForNetworkIdle();
+    await delay(2000);
 
     await screenShot(page);
 
@@ -120,7 +120,7 @@ const writeArticle = async (page, link) => {
     const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
     
     await articleBodyInput.click();
-    await articleBodyInput.type(obj.articleBody, {delay: 120});
+    await articleBodyInput.type(obj.articleBody, {delay: 70});
 
     return(obj);
 }
