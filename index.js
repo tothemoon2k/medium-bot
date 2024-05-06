@@ -17,8 +17,6 @@ puppeteer.use(StealthPlugin());
 const run = async () => {
     const browser = await puppeteer.launch({
         headless: false,
-        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true,
-        executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     });
 
     const page = await browser.newPage();
