@@ -47,7 +47,7 @@ const run = async () => {
         await login(page, author);
         console.log("Login Success");
 
-        await delay(5000);
+        await delay(3000);
 
         const screenshotBuffer = await page.screenshot();
         fs.writeFileSync('screenshot.png', screenshotBuffer);
@@ -70,7 +70,7 @@ const run = async () => {
         }
 
     } catch (error) {
-        console.log("Login failed...");
+        console.log("Login failed...", error);
         browser.close();
     }
     
