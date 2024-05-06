@@ -1,5 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { autoScroll, delay } = require("./helper");
+const { autoScroll, delay, screenShot } = require("./helper");
 const {generatePrompt} = require("./prompts");
 const FormData = require('form-data');
 const axios = require("axios");
@@ -12,9 +12,13 @@ const login = async (page, author) => {
     await page.goto('https://medium.com');
     await page.waitForNetworkIdle();
 
+    await screenShot();
+
     await page.click('button.cg.ch.ci.cj.ck.cl.cm.cn.co.cp.cq.cr.cs.ct.cu.cv.cw.cx.cy.cz');
 
     await page.waitForNetworkIdle();
+
+    await screenShot();
 
     const links = await page.$$eval('a', links => {
         return links.map(link => link.href) 
@@ -26,29 +30,16 @@ const login = async (page, author) => {
 
     await page.waitForNetworkIdle();
 
+    await screenShot();
+
     await page.type('#email', author.email, { delay: 250 });
     await page.type('#pass', author.pass, { delay: 250 });
 
-    const screenshotBuffer = await page.screenshot();
-    
-        const formData = new FormData();
-        formData.append('image', screenshotBuffer, 'screenshot.png');
-    
-        try {
-        const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
-            headers: {
-            'Authorization': 'Client-ID 787933842b3b036',
-            ...formData.getHeaders(),
-            },
-        });
-    
-        // Log the URL of the uploaded image
-        console.log(imgurResponse.data.data.link);
+    await screenShot();
 
-        await page.click('#loginbutton');
-        } catch (error) {
-            console.error('Error uploading image:', error);
-        }
+    await page.click('#loginbutton');
+
+    await screenShot();
 }
 
 const grabArticles = async (page) => {

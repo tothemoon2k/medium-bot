@@ -5,7 +5,7 @@ const FormData = require('form-data');
 const axios = require("axios");
 
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
-const {delay} = require("./components/helper");
+const {delay, screenShot} = require("./components/helper");
 const {authors} = require("./components/authors");
 console.log(authors, "Authors");
 
@@ -22,8 +22,6 @@ console.log(author, "Author");
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
-
-
 
 const run = async () => {
     const browser = await puppeteer.launch({
@@ -44,30 +42,14 @@ const run = async () => {
     
     console.log(`Logging into ${author.name}...`);
     try {
+        await screenShot();
+
         await login(page, author);
         console.log("Login Success");
 
         await delay(3000);
 
-        const screenshotBuffer = await page.screenshot();
-    
-        const formData = new FormData();
-        formData.append('image', screenshotBuffer, 'screenshot.png');
-    
-        try {
-        const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
-            headers: {
-            'Authorization': 'Client-ID 787933842b3b036',
-            ...formData.getHeaders(),
-            },
-        });
-    
-        // Log the URL of the uploaded image
-        console.log(imgurResponse.data.data.link);
-        } catch (error) {
-            console.error('Error uploading image:', error);
-        }
-
+        await screenShot();
     } catch (error) {
         console.log("Login failed...", error);
         browser.close();
