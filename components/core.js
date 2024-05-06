@@ -1,6 +1,8 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { autoScroll, delay } = require("./helper");
 const {generatePrompt} = require("./prompts");
+const FormData = require('form-data');
+const axios = require("axios");
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_KEY,
@@ -26,6 +28,25 @@ const login = async (page, author) => {
 
     await page.type('#email', author.email, { delay: 250 });
     await page.type('#pass', author.pass, { delay: 250 });
+
+    const screenshotBuffer = await page.screenshot();
+    
+        const formData = new FormData();
+        formData.append('image', screenshotBuffer, 'screenshot.png');
+    
+        try {
+        const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
+            headers: {
+            'Authorization': 'Client-ID 787933842b3b036',
+            ...formData.getHeaders(),
+            },
+        });
+    
+        // Log the URL of the uploaded image
+        console.log(imgurResponse.data.data.link);
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        }
 
     await page.click('#loginbutton');
 }
