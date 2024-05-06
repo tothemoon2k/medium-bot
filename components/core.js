@@ -12,13 +12,13 @@ const login = async (page, author) => {
     await page.goto('https://medium.com');
     await page.waitForNetworkIdle();
 
-    await screenShot();
+    await screenShot(page);
 
     await page.click('button.cg.ch.ci.cj.ck.cl.cm.cn.co.cp.cq.cr.cs.ct.cu.cv.cw.cx.cy.cz');
 
     await page.waitForNetworkIdle();
 
-    await screenShot();
+    await screenShot(page);
 
     const links = await page.$$eval('a', links => {
         return links.map(link => link.href) 
@@ -30,16 +30,16 @@ const login = async (page, author) => {
 
     await page.waitForNetworkIdle();
 
-    await screenShot();
+    await screenShot(page);
 
     await page.type('#email', author.email, { delay: 250 });
     await page.type('#pass', author.pass, { delay: 250 });
 
-    await screenShot();
+    await screenShot(page);
 
     await page.click('#loginbutton');
 
-    await screenShot();
+    await screenShot(page);
 }
 
 const grabArticles = async (page) => {

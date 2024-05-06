@@ -42,14 +42,14 @@ const run = async () => {
     
     console.log(`Logging into ${author.name}...`);
     try {
-        await screenShot();
+        await screenShot(page);
 
         await login(page, author);
         console.log("Login Success");
 
         await delay(3000);
 
-        await screenShot();
+        await screenShot(page);
     } catch (error) {
         console.log("Login failed...", error);
         browser.close();
