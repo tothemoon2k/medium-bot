@@ -2,12 +2,10 @@
 # exit on errorset -o errexit
 
 npm install
-
-npx puppeteer browsers install chrome
 # npm run build # uncomment if required
 
 # Store/pull Puppeteer cache with build cache
-if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then
+if [ ! -d $PUPPETEER_CACHE_DIR ] ; then 
   echo "...Copying Puppeteer Cache from Build Cache" 
   cp -R $XDG_CACHE_HOME/puppeteer/ $PUPPETEER_CACHE_DIR
 else 
