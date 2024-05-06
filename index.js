@@ -5,8 +5,10 @@ const fs = require('fs');
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
 const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
+console.log(authors, "Authors");
+console.log(`${process.argv[2]} ${process.argv[3]}`, "Input name");
 const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
-
+console.log(author, "Author");
 
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
