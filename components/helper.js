@@ -1,7 +1,14 @@
+const delay = (time) => {
+    return new Promise(function(resolve) { 
+        setTimeout(resolve, time)
+    });
+};
+
 const autoScroll = async (page, maxScrolls = 10) => {
     const scrollHeight = 'document.body.scrollHeight';
 
     for (let i = 0; i < maxScrolls; i++) {
+        await delay(2000);
         const lastHeight = await page.evaluate(scrollHeight);
 
         await page.evaluate(`window.scrollBy(0, ${scrollHeight})`);
@@ -13,10 +20,4 @@ const autoScroll = async (page, maxScrolls = 10) => {
     }
 };
 
-const delay = (time) => {
-    return new Promise(function(resolve) { 
-        setTimeout(resolve, time)
-    });
-}
-
-module.exports = {autoScroll, delay};
+module.exports = {delay, autoScroll};

@@ -33,7 +33,7 @@ const login = async (page, author) => {
 const grabArticles = async (page) => {
     await page.waitForSelector("article a");
 
-    await autoScroll(page, 20);
+    await autoScroll(page, 5); //Change back to 20
 
     const articles = await page.$$eval('article a', anchors =>
         Array.from(new Set(
@@ -102,13 +102,13 @@ const writeArticle = async (page, link) => {
     const headlineInput = await page.$('h3');
 
     await headlineInput.click();
-    await headlineInput.type(obj.headline, { delay: 150 });
+    await headlineInput.type(obj.headline, { delay: 50 });
 
     await page.waitForSelector('p[data-testid="editorParagraphText"]');
     const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
     
     await articleBodyInput.click();
-    await articleBodyInput.type(obj.articleBody);
+    await articleBodyInput.type(obj.articleBody, {delay: 120});
 
     return(obj);
 }

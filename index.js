@@ -16,7 +16,7 @@ puppeteer.use(StealthPlugin());
 
 const run = async () => {
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true,
         executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     });
@@ -26,7 +26,7 @@ const run = async () => {
     console.log(`Logging into ${author.name}...`);
     try {
         await login(page, author);
-        console.log("Login Success")
+        console.log("Login Success");
     } catch (error) {
         console.log("Login failed...");
         browser.close();
@@ -34,6 +34,9 @@ const run = async () => {
     
     console.log("Navigating to topic page...")
     await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
+
+    await delay(5000);
+
     await page.goto(`https://medium.com/?tag=${author.topic}`);
 
     console.log(`Scrapping ${author.topic} topic page...`);
