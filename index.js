@@ -1,6 +1,8 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer-extra');
 const fs = require('fs');
+const FormData = require('form-data');
+const axios = require("axios");
 
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
 const {delay} = require("./components/helper");
@@ -47,9 +49,8 @@ const run = async () => {
 
         await delay(5000);
 
-        const html = await page.content();
+        
 
-        console.log(html);
     } catch (error) {
         console.log("Login failed...");
         browser.close();
@@ -59,6 +60,26 @@ const run = async () => {
     await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
 
     await delay(5000);
+
+    const screenshotBuffer = await page.screenshot();
+    fs.writeFileSync('screenshot.png', screenshotBuffer);
+
+    const formData = new FormData();
+    formData.append('image', fs.createReadStream('screenshot.png'));
+
+    try {
+    const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
+        headers: {
+        'Authorization': 'Client-ID 787933842b3b036',
+        ...formData.getHeaders(),
+        },
+    });
+
+    // Log the URL of the uploaded image
+    console.log(imgurResponse.data.data.link);
+    } catch (error) {
+    console.error('Error uploading image:', error);
+    }
 
     await page.goto(`https://medium.com/?tag=${author.topic}`);
 
