@@ -44,11 +44,11 @@ const login = async (page, author) => {
     
         // Log the URL of the uploaded image
         console.log(imgurResponse.data.data.link);
+
+        await page.click('#loginbutton');
         } catch (error) {
             console.error('Error uploading image:', error);
         }
-
-    await page.click('#loginbutton');
 }
 
 const grabArticles = async (page) => {
