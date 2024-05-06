@@ -44,6 +44,12 @@ const run = async () => {
     try {
         await login(page, author);
         console.log("Login Success");
+
+        await delay(5000);
+
+        const html = await page.content();
+
+        console.log(html);
     } catch (error) {
         console.log("Login failed...");
         browser.close();
