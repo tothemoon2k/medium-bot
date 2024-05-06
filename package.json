@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx puppeteer browsers install chrome && node index",
-    "build": "npm install"
+    "dev": "node index",
+    "build": "./render-build.sh"
   },
   "author": "JTG",
   "license": "ISC",
