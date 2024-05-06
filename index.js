@@ -6,9 +6,16 @@ const {login, grabArticles, writeArticle, polishArticle} = require("./components
 const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
 console.log(authors, "Authors");
-console.log(`${process.argv[2]} ${process.argv[3]}`, "Input name");
-const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
+
+const inputName = process.env.NODE_ENV === "production"
+? process.argv[2]
+: `${process.argv[2]} ${process.argv[3]}`
+
+console.log(inputName, "Input name");
+
+const author = authors.find(author => author.name === inputName);
 console.log(author, "Author");
+
 
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -90,6 +97,6 @@ const run = async () => {
 try {
     run();
 } catch (error) {
-    console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error)
+    console.log(`An error occurred - ${inputName}`, error)
 }
 
