@@ -2,13 +2,11 @@ require('dotenv').config();
 const puppeteer = require('puppeteer-extra');
 const proxyChain = require('proxy-chain');
 
-const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
+const {login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail} = require("./components/core");
 const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
 
 const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
-
-//ADD PROXY CLEAN UP!!!!!
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
@@ -82,6 +80,7 @@ const run = async () => {
             } catch (error) {
                 console.log("Maximum Articles Posted");
                 await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+                await sendSuccessEmail("justin2013pdx@gmail.com", "Justin Garner", author.name);
                 browser.close();
                 break;
             }
@@ -94,6 +93,6 @@ const run = async () => {
 try {
     run();
 } catch (error) {
-    console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error)
+    console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error);
 }
 
