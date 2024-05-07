@@ -1,8 +1,6 @@
 const Anthropic = require('@anthropic-ai/sdk');
-const { autoScroll, delay, screenShot } = require("./helper");
-const {generatePrompt} = require("./prompts");
-const FormData = require('form-data');
-const axios = require("axios");
+const { autoScroll, delay } = require("./helper");
+const { generatePrompt } = require("./prompts");
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_KEY,
@@ -12,13 +10,9 @@ const login = async (page, author) => {
     await page.goto('https://medium.com');
     await page.waitForNetworkIdle();
 
-    await screenShot(page);
-
     await page.goto("https://medium.com/m/signin");
 
     await delay(2000);
-
-    await screenShot(page);
 
     const links = await page.$$eval('a', links => {
         return links.map(link => link.href) 
@@ -28,18 +22,14 @@ const login = async (page, author) => {
 
     await page.goto(facebookUrl);
 
-    await delay(2000);
+    await page.waitForSelector("#email");
 
-    await screenShot(page);
+    await delay(2000);
 
     await page.type('#email', author.email, { delay: 250 });
     await page.type('#pass', author.pass, { delay: 250 });
 
-    await screenShot(page);
-
     await page.click('#loginbutton');
-
-    await screenShot(page);
 }
 
 const grabArticles = async (page) => {

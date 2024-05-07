@@ -1,32 +1,21 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer-extra');
 const proxyChain = require('proxy-chain');
-const fs = require('fs');
-const FormData = require('form-data');
-const axios = require("axios");
 
 const {login, grabArticles, writeArticle, polishArticle} = require("./components/core");
-const {delay, screenShot} = require("./components/helper");
+const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
-console.log(authors, "Authors");
 
-const inputName = process.env.NODE_ENV === "production"
-? process.argv[2]
-: `${process.argv[2]} ${process.argv[3]}`
-
-console.log(inputName, "Input name");
-
-const author = authors.find(author => author.name === inputName);
+const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
 console.log(author, "Author");
 
-
+//ADD PROXY CLEAN UP!!!!!
 
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
-    const oldProxyUrl = 'http://topperbrown2k_gmail_com-country-us-sid-ar7yhbfvqzrxeo-filter-medium:qbi5zdnlus@gate.nodemaven.com:8080';
-    const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
+    const newProxyUrl = await proxyChain.anonymizeProxy("http://topperbrown2k_gmail_com-country-us-sid-ar7yhbfvqzrxeo-filter-medium:qbi5zdnlus@gate.nodemaven.com:8080");
 
     console.log(newProxyUrl);
 
@@ -49,16 +38,11 @@ const run = async () => {
     
     console.log(`Logging into ${author.name}...`);
     try {
-        await screenShot(page);
-
         await login(page, author);
         console.log("Login Success");
-
-        await delay(3000);
-
-        await screenShot(page);
     } catch (error) {
         console.log("Login failed...", error);
+        await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
         browser.close();
     }
     
@@ -98,6 +82,7 @@ const run = async () => {
                 console.log("Successfully posted an article");
             } catch (error) {
                 console.log("Maximum Articles Posted");
+                await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
                 browser.close();
                 break;
             }
@@ -110,6 +95,6 @@ const run = async () => {
 try {
     run();
 } catch (error) {
-    console.log(`An error occurred - ${inputName}`, error)
+    console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error)
 }
 
