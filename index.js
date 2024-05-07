@@ -1,5 +1,6 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer-extra');
+const proxyChain = require('proxy-chain');
 const fs = require('fs');
 const FormData = require('form-data');
 const axios = require("axios");
@@ -24,12 +25,18 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
+    const oldProxyUrl = 'http://topperbrown2k_gmail_com-country-us-sid-ar7yhbfvqzrxeo-filter-medium:qbi5zdnlus@gate.nodemaven.com:8080';
+    const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
+
+    console.log(newProxyUrl);
+
     const browser = await puppeteer.launch({
         args: [
           "--disable-setuid-sandbox",
           "--no-sandbox",
           "--single-process",
           "--no-zygote",
+          `--proxy-server=${newProxyUrl}`,
         ],
         executablePath:
           process.env.NODE_ENV === "production"
