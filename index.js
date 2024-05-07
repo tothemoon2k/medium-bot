@@ -12,7 +12,7 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
-    const newProxyUrl = await proxyChain.anonymizeProxy("http://topperbrown2k_gmail_com-country-us-sid-ar7yhbfvqzrxeo-filter-medium:qbi5zdnlus@gate.nodemaven.com:8080");
+    const newProxyUrl = await proxyChain.anonymizeProxy(process.env.PROXY_URL);
 
     console.log(newProxyUrl);
 

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
 const { autoScroll, delay } = require("./helper");
 const { generatePrompt } = require("./prompts");
@@ -131,7 +132,7 @@ const polishArticle = async (page, res) => {
 const sendSuccessEmail = async (email, name, authorName) => {
     let headers = {
         'accept': 'application/json',
-        'api-key': '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',
+        'api-key': process.env.BREVO_KEY,
         'content-type': 'application/json'
     };
 
@@ -212,7 +213,7 @@ const sendSuccessEmail = async (email, name, authorName) => {
 const sendErrorEmail = async (email, name, authorName, error) => {
     let headers = {
         'accept': 'application/json',
-        'api-key': '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',
+        'api-key': process.env.BREVO_KEY,
         'content-type': 'application/json'
     };
 
