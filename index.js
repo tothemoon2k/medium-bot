@@ -7,7 +7,6 @@ const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
 
 const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
-console.log(author, "Author");
 
 //ADD PROXY CLEAN UP!!!!!
 
@@ -47,7 +46,7 @@ const run = async () => {
     }
     
     console.log("Navigating to topic page...")
-    await page.waitForSelector("h2.am.fh.fi.ah.fj.bq");
+    await page.waitForSelector("h2.am.fh.fi.ah.fj.bq", { timeout: 60000 });
 
     await delay(5000);
 
@@ -78,7 +77,7 @@ const run = async () => {
             await delay(8000);
 
             try {
-                await page.waitForSelector('h3[data-testid="publishSuccessTitleText"]');
+                await page.waitForSelector('h3[data-testid="publishSuccessTitleText"]', { timeout: 60000 });
                 console.log("Successfully posted an article");
             } catch (error) {
                 console.log("Maximum Articles Posted");

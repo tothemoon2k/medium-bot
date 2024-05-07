@@ -12,7 +12,7 @@ const login = async (page, author) => {
 
     await page.goto("https://medium.com/m/signin");
 
-    await delay(2000);
+    await delay(4000);
 
     const links = await page.$$eval('a', links => {
         return links.map(link => link.href) 
@@ -22,7 +22,7 @@ const login = async (page, author) => {
 
     await page.goto(facebookUrl);
 
-    await page.waitForSelector("#email");
+    await page.waitForSelector("#email", { timeout: 60000 });
 
     await delay(2000);
 
@@ -33,7 +33,7 @@ const login = async (page, author) => {
 }
 
 const grabArticles = async (page) => {
-    await page.waitForSelector("article a");
+    await page.waitForSelector("article a", { timeout: 60000 });
 
     await autoScroll(page, 5); //Change back to 20
 
@@ -72,7 +72,7 @@ const generateMessage = async (headline, articleBody) => {
 const writeArticle = async (page, link) => {
     await page.goto(link);
 
-    await page.waitForSelector('div.pw-multi-vote-count button');
+    await page.waitForSelector('div.pw-multi-vote-count button', { timeout: 60000 });
 
     const claps = await page.$eval(
         'div.pw-multi-vote-count button',
@@ -100,13 +100,13 @@ const writeArticle = async (page, link) => {
 
 
 
-    await page.waitForSelector('h3');
+    await page.waitForSelector('h3', { timeout: 60000 });
     const headlineInput = await page.$('h3');
 
     await headlineInput.click();
     await headlineInput.type(obj.headline, { delay: 50 });
 
-    await page.waitForSelector('p[data-testid="editorParagraphText"]');
+    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
     const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
     
     await articleBodyInput.click();
