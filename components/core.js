@@ -58,7 +58,7 @@ const grabArticles = async (browser, page) => {
         console.log(`Found ${allArticles.length} 1k articles so far`);
 
         if (allArticles.length < 20) {
-            await autoScroll(page, 5);
+            await autoScroll(page, 3);
         }
     }
 
