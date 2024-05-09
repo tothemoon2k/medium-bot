@@ -1,21 +1,12 @@
 require('dotenv').config();
-const puppeteer = require('puppeteer-extra');
-const proxyChain = require('proxy-chain');
 
-const {login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail} = require("./components/core");
-const {delay} = require("./components/helper");
-const {authors} = require("./components/authors");
-const {proxies} = require("./components/proxies");
+const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies} = require("./components");
 
-const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
-
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
+    const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
     const newProxyUrl = await proxyChain.anonymizeProxy(proxies[Math.floor(Math.random() * proxies.length)]);
-
-    console.log(newProxyUrl);
 
     const browser = await puppeteer.launch({
         args: [
@@ -57,7 +48,7 @@ const run = async () => {
 
     try {
         articles = await grabArticles(browser, page);
-        console.log(`Successfully scrapped ${author.topic} topic page and gathered ${articles.length}`)
+        console.log(`Successfully scrapped ${author.topic} topic page and gathered ${articles.length} articles`)
     } catch (error) {
         console.log(`There was an error scrapping ${author.topic} topic page`, error);
     }
@@ -92,8 +83,10 @@ const run = async () => {
 }
 
 try {
-    run();
+    await run();
 } catch (error) {
+    await sendErrorEmail();
     console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error);
+
 }
 
