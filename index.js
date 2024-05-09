@@ -5,6 +5,7 @@ const proxyChain = require('proxy-chain');
 const {login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail} = require("./components/core");
 const {delay} = require("./components/helper");
 const {authors} = require("./components/authors");
+const {proxies} = require("./components/proxies");
 
 const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
 
@@ -12,7 +13,7 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
-    const newProxyUrl = await proxyChain.anonymizeProxy(process.env.PROXY_URL);
+    const newProxyUrl = await proxyChain.anonymizeProxy(proxies[Math.floor(Math.random() * proxies.length)]);
 
     console.log(newProxyUrl);
 
