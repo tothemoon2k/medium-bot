@@ -55,7 +55,7 @@ const run = async () => {
     let articles;
 
     try {
-        articles = await grabArticles(page);
+        articles = await grabArticles(browser, page);
         console.log(`Successfully scrapped ${author.topic} topic page and gathered ${articles.length}`)
     } catch (error) {
         console.log(`There was an error scrapping ${author.topic} topic page`, error);

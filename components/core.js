@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
-const { autoScroll, delay } = require("./helper");
+const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
 const axios = require("axios");
 
@@ -34,21 +34,36 @@ const login = async (page, author) => {
     await page.click('#loginbutton');
 }
 
-const grabArticles = async (page) => {
+const grabArticles = async (browser, page) => {
     await page.waitForSelector("article a", { timeout: 60000 });
 
-    await autoScroll(page, 5); //Change back to 20
+    await autoScroll(page, 10);
 
-    const articles = await page.$$eval('article a', anchors =>
-        Array.from(new Set(
-            anchors
-                .map(anchor => anchor.href)
-                .filter(href => /https:\/\/medium\.com\/(@[a-zA-Z0-9]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+)(\?source=.*)?/g.test(href))
-            ))
-    );
+    let allArticles = [];
 
-    return(articles);
-}
+    while (allArticles.length < 20) {
+        const articles = await page.$$eval('article a', anchors =>
+            Array.from(new Set(
+                anchors
+                    .map(anchor => anchor.href)
+                    .filter(href => /https:\/\/medium\.com\/(@[a-zA-Z0-9]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+|[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+)(\?source=.*)?/g.test(href))
+                    .filter(href => !href.includes("/tag/"))
+                ))
+        );
+
+        const filteredArticles = await filterArticlesByClaps(browser, articles);
+        
+        allArticles = [...allArticles, ...filteredArticles];
+
+        console.log(`Found ${allArticles.length} 1k articles so far`);
+
+        if (allArticles.length < 20) {
+            await autoScroll(page, 5);
+        }
+    }
+
+    return allArticles;
+};
 
 const generateMessage = async (headline, articleBody) => {
     const prompt = generatePrompt(headline, articleBody);

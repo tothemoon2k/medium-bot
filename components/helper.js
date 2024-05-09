@@ -23,4 +23,27 @@ const autoScroll = async (page, maxScrolls = 10) => {
     }
 };
 
-module.exports = {delay, autoScroll};
+const filterArticlesByClaps = async (browser, articles) => {
+    const filteredArticles = [];
+    const newPage = await browser.newPage();
+
+    for (let link of articles) {
+        await newPage.goto(link);
+        await newPage.waitForSelector('div.pw-multi-vote-count button', { timeout: 60000 });
+
+        const claps = await newPage.$eval(
+            'div.pw-multi-vote-count button',
+            (button) => button.textContent.trim()
+        );
+
+        if (claps.includes("K")) {
+            filteredArticles.push(link);
+        }
+    }
+
+    newPage.close();
+
+    return filteredArticles;
+};
+
+module.exports = {delay, autoScroll, filterArticlesByClaps};
