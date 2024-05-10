@@ -6,6 +6,7 @@ const {sendSuccessEmail, sendErrorEmail} = require("./emails");
 const {delay} = require("./helper");
 const {authors} = require("./authors");
 const {proxies} = require("./proxies");
+const {queryImg} = require("./image");
 
 module.exports = {
     puppeteer,
@@ -19,5 +20,6 @@ module.exports = {
     sendErrorEmail,
     delay,
     authors,
-    proxies
+    proxies,
+    queryImg
 }

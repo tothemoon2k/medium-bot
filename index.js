@@ -1,10 +1,13 @@
 require('dotenv').config();
 
-const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies} = require("./components");
+const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies, queryImg} = require("./components");
 
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
+    const testing = await queryImg("About Me & My To Promote Actionable  Business Advice");
+    console.log(testing);
+
     const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
     const newProxyUrl = await proxyChain.anonymizeProxy(proxies[Math.floor(Math.random() * proxies.length)]);
 
@@ -32,6 +35,7 @@ const run = async () => {
     } catch (error) {
         console.log("Login failed...", error);
         await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+        await sendErrorEmail();
         browser.close();
     }
     
@@ -83,9 +87,9 @@ const run = async () => {
 }
 
 try {
-    await run();
+    run();
 } catch (error) {
-    await sendErrorEmail();
+    sendErrorEmail();
     console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error);
 
 }
