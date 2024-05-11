@@ -1,13 +1,10 @@
 require('dotenv').config();
 
-const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies, queryImg} = require("./components");
+const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies, queryImg, getImageData} = require("./components");
 
 puppeteer.use(StealthPlugin());
 
 const run = async () => {
-    const testing = await queryImg("About Me & My To Promote Actionable  Business Advice");
-    console.log(testing);
-
     const author = authors.find(author => author.name === `${process.argv[2]} ${process.argv[3]}`);
     const newProxyUrl = await proxyChain.anonymizeProxy(proxies[Math.floor(Math.random() * proxies.length)]);
 
@@ -40,7 +37,7 @@ const run = async () => {
     }
     
     console.log("Navigating to topic page...")
-    await page.waitForSelector("h2.am.fh.fi.ah.fj.bq", { timeout: 60000 });
+    await page.waitForSelector("h2", { timeout: 60000 });
 
     await delay(5000);
 
