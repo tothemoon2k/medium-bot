@@ -1,6 +1,8 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
 const fs = require("fs");
+const path = require('path');
+const os = require('os');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
 const {queryImg} = require("./image");
@@ -108,7 +110,11 @@ const writeArticle = async (page, link) => {
 
     const viewSource = await page.goto(imageUrl);
     const buffer = await viewSource.buffer();
-    fs.writeFileSync('image.jpg', buffer);
+
+    const tempDir = os.tmpdir();
+    const imagePath = path.join(tempDir, `image_${Date.now()}.jpg`);
+
+    fs.writeFileSync(imagePath, buffer);
 
     await page.goto("https://medium.com/new-story");
     await page.waitForSelector('h3', { timeout: 60000 });
@@ -128,6 +134,7 @@ const writeArticle = async (page, link) => {
 
     console.log("Successfully uploaded image");
   
+    fs.unlinkSync(imagePath);
 
 
     /*
