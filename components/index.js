@@ -7,6 +7,7 @@ const {delay} = require("./helper");
 const {authors} = require("./authors");
 const {proxies} = require("./proxies");
 const {queryImg} = require("./image");
+const {getImageData} = require("./getImageData")
 
 module.exports = {
     puppeteer,
@@ -21,5 +22,6 @@ module.exports = {
     delay,
     authors,
     proxies,
-    queryImg
+    queryImg,
+    getImageData
 }

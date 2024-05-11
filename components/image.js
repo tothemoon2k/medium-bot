@@ -87,11 +87,11 @@ const chooseImg = async (headline, urls) => {
 
     content.push({
         type: "text",
-        text: `Which of the following images best matches the following criteria: looks the least AI generated, includes a cute girl, would get the most views for a medium article and best matches this headline: ${headline}. Please only return a number 1-4 corresponding to your pick, no explanation at all.`
+        text: `Which of the following images best matches the following criteria: looks the least AI generated, would get the most views for a medium article and best matches this headline: ${headline}. Please only return a number 1-4 corresponding to your pick, no explanation at all.`
     })
 
     const requestParams = {
-        model: "claude-3-sonnet-20240229",
+        model: "claude-3-haiku-20240307",
         max_tokens: 4000,
         messages: [
             {
