@@ -125,6 +125,8 @@ const writeArticle = async (page, link) => {
         page.click('button[aria-label="Add an image"]')
     ]);
     await fileChooser.accept(['image.jpg']);
+
+    console.log("Successfully uploaded image");
   
 
 
