@@ -1,13 +1,8 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
-const fs = require("fs");
-const path = require('path');
-const os = require('os');
-const https = require('https');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
 const {queryImg} = require("./image");
-const {getImageData} = require("./getImageData");
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_KEY,
@@ -40,10 +35,9 @@ const login = async (page, author) => {
 }
 
 const grabArticles = async (browser, page) => {
-    /*
     await page.waitForSelector("article a", { timeout: 60000 });
 
-    await autoScroll(page, 10);
+    await autoScroll(page, 7);
 
     let allArticles = [];
 
@@ -69,9 +63,6 @@ const grabArticles = async (browser, page) => {
     }
 
     return allArticles;
-    */
-
-    return(["https://medium.com/@pomeroysays/5-food-items-that-will-be-more-expensive-and-harder-to-find-in-2024-b5081a02aed2?source=home_tag_tab---------42-85----------food-------31---9b652e80_d1e4_4f6f_8856_065839700780-------17"])
 };
 
 const generateArticle = async (headline, articleBody) => {
@@ -107,62 +98,14 @@ const writeArticle = async (page, link) => {
 
     const articleBody = paragraphs.join('\n');
 
-    const imageUrl = 'https://plus.unsplash.com/premium_photo-1669048776605-28ea2e52ae66?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-
-    const imageBuffer = await new Promise((resolve, reject) => {
-        https.get(imageUrl, (res) => {
-          const chunks = [];
-          res.on('data', (chunk) => chunks.push(chunk));
-          res.on('end', () => resolve(Buffer.concat(chunks)));
-          res.on('error', reject);
-        });
-    });
-
     await page.goto("https://medium.com/new-story");
-    await page.waitForSelector('h3', { timeout: 60000 });
-
-    await page.waitForSelector('[data-testid="editorAddButton"]');
-
-    // Click the button
-    await page.click('[data-testid="editorAddButton"]');
-
-    await delay("2000");
-
-    await page.click('button[aria-label="Add an image"]')
-
-    await delay(5000);
-
-    const inputUploadHandle = await page.$('input[type=file]');
-    await inputUploadHandle.uploadData(imageBuffer, 'image.jpg');
-
-    console.log("Successfully uploaded image");
-  
-    fs.unlinkSync(imagePath);
-
 
     /*
-
     const imgUrl = await queryImg("About Me & My To Promote Actionable  Business Advice");
-
     console.log(imgUrl);
-    
-    const imageData = await getImageData(imgUrl);
-    console.log(imageData);
-
-    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
-
-    const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
-    
-    clipboardy.writeSync(imageData);
-
-    await articleBodyInput.click({delay: 500});
-
-    await page.keyboard.down('ControlLeft');
-    await page.keyboard.press('V');
-    await page.keyboard.up('ControlLeft');
     */
 
-    /*
+    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
 
     const obj = await generateArticle(headline, articleBody);
 
@@ -176,8 +119,7 @@ const writeArticle = async (page, link) => {
     const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
     
     await articleBodyInput.click();
-    await articleBodyInput.type(obj.articleBody, {delay: 70});
-    */
+    await articleBodyInput.type(obj.articleBody); //Add delay back {delay: 70}
 
     return(obj);
 }
