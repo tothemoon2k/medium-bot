@@ -3,6 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const fs = require("fs");
 const path = require('path');
 const os = require('os');
+const https = require('https');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
 const {queryImg} = require("./image");
@@ -108,13 +109,14 @@ const writeArticle = async (page, link) => {
 
     const imageUrl = 'https://plus.unsplash.com/premium_photo-1669048776605-28ea2e52ae66?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
-    const viewSource = await page.goto(imageUrl);
-    const buffer = await viewSource.buffer();
-
-    const tempDir = os.tmpdir();
-    const imagePath = path.join(tempDir, `image_${Date.now()}.jpg`);
-
-    fs.writeFileSync(imagePath, buffer);
+    const imageBuffer = await new Promise((resolve, reject) => {
+        https.get(imageUrl, (res) => {
+          const chunks = [];
+          res.on('data', (chunk) => chunks.push(chunk));
+          res.on('end', () => resolve(Buffer.concat(chunks)));
+          res.on('error', reject);
+        });
+    });
 
     await page.goto("https://medium.com/new-story");
     await page.waitForSelector('h3', { timeout: 60000 });
@@ -126,11 +128,12 @@ const writeArticle = async (page, link) => {
 
     await delay("2000");
 
-    const [fileChooser] = await Promise.all([
-        page.waitForFileChooser(),
-        page.click('button[aria-label="Add an image"]')
-    ]);
-    await fileChooser.accept(['image.jpg']);
+    await page.click('button[aria-label="Add an image"]')
+
+    await delay(5000);
+
+    const inputUploadHandle = await page.$('input[type=file]');
+    await inputUploadHandle.uploadData(imageBuffer, 'image.jpg');
 
     console.log("Successfully uploaded image");
   
