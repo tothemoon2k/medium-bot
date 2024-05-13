@@ -39,7 +39,6 @@ const login = async (page, author) => {
 }
 
 const grabArticles = async (browser, page) => {
-    /*
     await page.waitForSelector("article a", { timeout: 60000 });
 
     await autoScroll(page, 7);
@@ -66,10 +65,8 @@ const grabArticles = async (browser, page) => {
             await autoScroll(page, 3);
         }
     }
-    return allArticles;
-    */
 
-    return(["https://medium.com/@pomeroysays/5-food-items-that-will-be-more-expensive-and-harder-to-find-in-2024-b5081a02aed2?source=home_tag_tab---------42-85----------food-------31---9b652e80_d1e4_4f6f_8856_065839700780-------17"])
+    return allArticles;
 };
 
 const generateArticle = async (headline, articleBody) => {
@@ -92,30 +89,9 @@ const generateArticle = async (headline, articleBody) => {
   
     console.error("Failed to generate message after two attempts.");
     return null;
- };
-
- const screenShot = async (page) =>{
-    const screenshotBuffer = await page.screenshot();
-    
-    const formData = new FormData();
-    formData.append('image', screenshotBuffer, 'screenshot.png');
-
-    try {
-        const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
-            headers: {
-            'Authorization': 'Client-ID 787933842b3b036',
-            ...formData.getHeaders(),
-            },
-        });
-
-    console.log(imgurResponse.data.data.link);
-    } catch (error) {
-        console.error('Error uploading image:', error);
-    }
-}
+};
 
 const writeArticle = async (page, link) => {
-    /*
     await page.goto(link);
 
     const h1 = await page.$('h1[data-testid="storyTitle"]');
@@ -129,66 +105,10 @@ const writeArticle = async (page, link) => {
 
     await page.goto("https://medium.com/new-story");
 
-    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
-    const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
-    */
-
-    const imageUrl = 'https://plus.unsplash.com/premium\_photo-1669048776605-28ea2e52ae66?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-    const viewSource = await page.goto(imageUrl);
-
-    await delay(5000);
-
-    await screenShot(page);
-
-    const buffer = await viewSource.buffer();
-
-    fs.writeFileSync(`${tmpDir}/image.png`, buffer);
-    await page.goto("https://medium.com/new-story");
-
-    await page.waitForSelector('h3', { timeout: 60000 });
-
-    await delay(2000);
-
-    await page.waitForSelector('button[title="Add an image, video, embed, or new part"]');
-
-    console.log("About to click into input");
-
-    await screenShot(page);
-
-    // Click the button
-    await page.click('button[title="Add an image, video, embed, or new part"]');
-
-    await screenShot(page);
-
-    console.log("About to click add image");
-
-    await screenShot(page);
-    
-    await page.waitForSelector(`button[aria-label="Add an image"]`);
-
-    await screenShot(page);
-
-    console.log("About to choose file");
-
-    await screenShot(page);
-
-    const [fileChooser] = await Promise.all([
-        page.waitForFileChooser(),
-        page.click('button[title="Add an image"]')
-    ]);
-
-    console.log("About to accept file");
-
-    await screenShot(page);
-
-    await fileChooser.accept([`${tmpDir}/image.png`]);
-
-    console.log("After testing");
-
     /*
     const imgUrl = await queryImg("About Me & My To Promote Actionable  Business Advice");
     console.log(imgUrl);
-    
+    */
 
     await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
 
@@ -205,7 +125,6 @@ const writeArticle = async (page, link) => {
     
     await articleBodyInput.click();
     await articleBodyInput.type(obj.articleBody); //Add delay back {delay: 70}
-    */
 
     return(obj);
 }

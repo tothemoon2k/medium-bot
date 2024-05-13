@@ -20,7 +20,7 @@ const run = async () => {
           process.env.NODE_ENV === "production"
             ? process.env.PUPPETEER_EXECUTABLE_PATH
             : puppeteer.executablePath(),
-            headless: true,
+            headless: false,
     });
 
     const page = await browser.newPage();
@@ -39,7 +39,7 @@ const run = async () => {
     console.log("Navigating to topic page...")
     await page.waitForSelector("h2", { timeout: 60000 });
 
-    await delay(5000);
+    await delay(15000);
 
     await page.goto(`https://medium.com/?tag=${author.topic}`);
 
