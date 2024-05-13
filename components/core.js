@@ -119,6 +119,9 @@ const writeArticle = async (page, link) => {
     await page.goto("https://medium.com/new-story");
 
     await page.waitForSelector('h3', { timeout: 60000 });
+
+    await delay(2000);
+
     await page.waitForSelector('[data-testid="editorAddButton"]');
 
     // Click the button
