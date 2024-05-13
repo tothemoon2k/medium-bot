@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies } = require("./components");
+const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies, queryImg, getImageData} = require("./components");
 
 puppeteer.use(StealthPlugin());
 
@@ -56,8 +56,8 @@ const run = async () => {
 
     for(let article of articles){
         try {
-            console.log("Writing an article...");
             const res = await writeArticle(page, article);
+            console.log("Writing an article...");
 
             await page.click('button[data-action="show-prepublish"]');
     
