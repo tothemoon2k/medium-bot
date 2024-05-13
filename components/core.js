@@ -124,17 +124,27 @@ const writeArticle = async (page, link) => {
 
     await page.waitForSelector('[data-testid="editorAddButton"]');
 
+    console.log("About to click into input");
+
     // Click the button
     await page.click('[data-testid="editorAddButton"]');
+
+    console.log("About to click add image");
     
-    await delay(2000);
+    await page.waitForSelector(`button[aria-label="Add an image"]`);
+
+    console.log("About to choose file");
 
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
-        page.click('button[aria-label="Add an image"]')
+        page.click('button[title="Add an image"]')
     ]);
 
+    console.log("About to accept file");
+
     await fileChooser.accept([`${tmpDir}/image.png`]);
+
+    console.log("After testing");
 
     /*
     const imgUrl = await queryImg("About Me & My To Promote Actionable  Business Advice");
