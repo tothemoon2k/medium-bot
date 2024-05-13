@@ -1,6 +1,8 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
 const fs = require("fs");
+const axios = require("axios");
+const FormData = require('form-data');
 const tmpDir = '/tmp';
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
@@ -92,6 +94,26 @@ const generateArticle = async (headline, articleBody) => {
     return null;
  };
 
+ const screenShot = async (page) =>{
+    const screenshotBuffer = await page.screenshot();
+    
+    const formData = new FormData();
+    formData.append('image', screenshotBuffer, 'screenshot.png');
+
+    try {
+        const imgurResponse = await axios.post('https://api.imgur.com/3/image', formData, {
+            headers: {
+            'Authorization': 'Client-ID 787933842b3b036',
+            ...formData.getHeaders(),
+            },
+        });
+
+    console.log(imgurResponse.data.data.link);
+    } catch (error) {
+        console.error('Error uploading image:', error);
+    }
+}
+
 const writeArticle = async (page, link) => {
     /*
     await page.goto(link);
@@ -113,6 +135,11 @@ const writeArticle = async (page, link) => {
 
     const imageUrl = 'https://plus.unsplash.com/premium\_photo-1669048776605-28ea2e52ae66?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
     const viewSource = await page.goto(imageUrl);
+
+    await delay(5000);
+
+    await screenShot(page);
+
     const buffer = await viewSource.buffer();
 
     fs.writeFileSync(`${tmpDir}/image.png`, buffer);
@@ -126,14 +153,24 @@ const writeArticle = async (page, link) => {
 
     console.log("About to click into input");
 
+    await screenShot(page);
+
     // Click the button
     await page.click('[data-testid="editorAddButton"]');
 
+    await screenShot(page);
+
     console.log("About to click add image");
+
+    await screenShot(page);
     
     await page.waitForSelector(`button[aria-label="Add an image"]`);
 
+    await screenShot(page);
+
     console.log("About to choose file");
+
+    await screenShot(page);
 
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
@@ -141,6 +178,8 @@ const writeArticle = async (page, link) => {
     ]);
 
     console.log("About to accept file");
+
+    await screenShot(page);
 
     await fileChooser.accept([`${tmpDir}/image.png`]);
 
