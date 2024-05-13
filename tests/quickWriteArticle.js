@@ -4,14 +4,17 @@ const tmpDir = '/tmp';
 
 const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies } = require("../components");
 
+puppeteer.use(StealthPlugin());
 
 const runTest1 = async () => {
     const author = {
         name: "Joel Orion",
         email: "joelorion13@gmail.com",
         topic: "business",
-        pass: ""
+        pass: process.env.JOEL_ORION_FB_PASS //REMOVE TEXT BEFORE COMMITTING TO GIT
     };
+
+    const newProxyUrl = await proxyChain.anonymizeProxy(proxies[Math.floor(Math.random() * proxies.length)]);
 
     const browser = await puppeteer.launch({
         args: [
@@ -19,12 +22,13 @@ const runTest1 = async () => {
           "--no-sandbox",
           "--single-process",
           "--no-zygote",
+          `--proxy-server=${newProxyUrl}`,
         ],
         executablePath:
           process.env.NODE_ENV === "production"
             ? process.env.PUPPETEER_EXECUTABLE_PATH
             : puppeteer.executablePath(),
-            headless: false,
+            headless: true,
     });
 
     const page = await browser.newPage();
@@ -35,31 +39,27 @@ const runTest1 = async () => {
 
     await delay(3000);
 
-    await page.goto('https://plus.unsplash.com/premium_photo-1669058431851-aae101e63b61?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    const imageUrl = 'https://plus.unsplash.com/premium_photo-1669048776605-28ea2e52ae66?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
-    await page.waitForSelector("img");
-
-    await delay(3000);
-
-    const imageElement = await page.$('img');
-    await imageElement.click({ button: 'right' });
-
-    await delay(2000);
-
-    //Work yo magic twin
-
-    await delay(2000);
+    const viewSource = await page.goto(imageUrl);
+    const buffer = await viewSource.buffer();
+    fs.writeFileSync(`${tmpDir}/image.png`, buffer);
 
     await page.goto("https://medium.com/new-story");
+    await page.waitForSelector('h3', { timeout: 60000 });
 
-    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
+    await page.waitForSelector('[data-testid="editorAddButton"]');
 
-    const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
-    await articleBodyInput.click();
+    // Click the button
+    await page.click('[data-testid="editorAddButton"]');
 
-    await page.keyboard.down('Control');
-    await page.keyboard.press('V');
-    await page.keyboard.up('Control');
+    await delay("2000");
+
+    const [fileChooser] = await Promise.all([
+        page.waitForFileChooser(),
+        page.click('button[aria-label="Add an image"]')
+    ]);
+    await fileChooser.accept([`${tmpDir}/image.png`]);
 }
 
 const runTest2 = async () => {
@@ -70,5 +70,5 @@ const runTest2 = async () => {
     console.log(data); // Output: Hello, World!
 }
 
-runTest2();
+runTest1();
 
