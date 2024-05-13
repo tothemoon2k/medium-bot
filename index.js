@@ -88,5 +88,4 @@ try {
 } catch (error) {
     sendErrorEmail();
     console.log(`An error occurred - ${process.argv[2]} ${process.argv[3]}`, error);
-
 }
