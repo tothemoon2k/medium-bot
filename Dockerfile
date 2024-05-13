@@ -8,8 +8,4 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-CMD npm run dev -- Joel Orion && \
-    npm run dev -- Osberg Conrad && \
-    npm run dev -- Natalie Baker && \
-    npm run dev -- Mateo Sanchez && \
-    npm run dev -- Nate Palmer
+CMD cd tests && node quickWriteArticle
