@@ -126,7 +126,8 @@ const writeArticle = async (page, link) => {
 
     // Click the button
     await page.click('[data-testid="editorAddButton"]');
-    await delay("2000");
+    
+    await delay(2000);
 
     const [fileChooser] = await Promise.all([
         page.waitForFileChooser(),
