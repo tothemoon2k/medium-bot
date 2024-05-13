@@ -149,14 +149,14 @@ const writeArticle = async (page, link) => {
 
     await delay(2000);
 
-    await page.waitForSelector('[data-testid="editorAddButton"]');
+    await page.waitForSelector('button[title="Add an image, video, embed, or new part"]');
 
     console.log("About to click into input");
 
     await screenShot(page);
 
     // Click the button
-    await page.click('[data-testid="editorAddButton"]');
+    await page.click('button[title="Add an image, video, embed, or new part"]');
 
     await screenShot(page);
 
