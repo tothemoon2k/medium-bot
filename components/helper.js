@@ -36,7 +36,7 @@ const filterArticlesByClaps = async (browser, articles) => {
             (button) => button.textContent.trim()
         );
 
-        if (claps.includes("K")) {
+        if (Number(claps) >= 500) {
             filteredArticles.push(link);
         }
     }
