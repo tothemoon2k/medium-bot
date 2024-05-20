@@ -19,20 +19,30 @@ const acquireUserDetails = () => {
   });
 };
 
-const postViaAPI = () => {
+const sampleInput = {
+  userDetails: {
+    userId: "1d96c06a77f6dadd6e6ea0c0c5efa95e0f08e32aa807b91bee6e88a778fd839af",
+    token: ""
+  },
+  title: "Hi, I'm a title",
+  content: "<h1>Liverpool FC</h1><p>You'll never walk alone.</p>",
+  tags: ["football", "sport", "Liverpool"],
+}
+
+const postViaAPI = (userDetails, title, content, tags) => {
   axios
     .post(
-      "/v1/users/1d96c06a77f6dadd6e6ea0c0c5efa95e0f08e32aa807b91bee6e88a778fd839af/posts",
+      `/v1/users/1d96c06a77f6dadd6e6ea0c0c5efa95e0f08e32aa807b91bee6e88a778fd839af/posts`, ///v1/users/${userDetails.userId}/posts
       {
-        title: "Liverpool FC",
+        title: title,
         contentFormat: "html",
-        content: "<h1>Liverpool FC</h1><p>You'll never walk alone.</p>",
-        tags: ["football", "sport", "Liverpool"],
+        content: content,
+        tags: tags,
         publishStatus: "public",
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.MEDIUM_TOKEN}`,
+          Authorization: `Bearer`, //Bearer ${userDetails.token}
           "Content-Type": "application/json",
           Accept: "application/json",
           "Accept-Charset": "utf-8",
@@ -47,5 +57,7 @@ const postViaAPI = () => {
       console.error(error.response.data);
     });
 };
+
+postViaAPI(sampleInput.userDetails, sampleInput.title, sampleInput.content, sampleInput.tags);
 
 module.exports = {postViaAPI};

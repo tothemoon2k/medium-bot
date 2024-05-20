@@ -3,6 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
 const { generatePrompt } = require("./prompts");
 const {queryImg} = require("./image");
+const {postViaAPI} = require("./handleAPI");
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_KEY,
@@ -87,7 +88,7 @@ const generateArticle = async (headline, articleBody) => {
     return null;
  };
 
-const writeArticle = async (page, link) => {
+const writeArticle = async (page, link, author) => {
     await page.goto(link);
 
     const h1 = await page.$('h1[data-testid="storyTitle"]');
@@ -99,28 +100,12 @@ const writeArticle = async (page, link) => {
 
     const articleBody = paragraphs.join('\n');
 
-    await page.goto("https://medium.com/new-story");
-
-    /*
     const imgUrl = await queryImg("About Me & My To Promote Actionable  Business Advice");
     console.log(imgUrl);
-    */
 
-    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
+    const obj = await generateArticle(headline, articleBody, imgUrl);
 
-    const obj = await generateArticle(headline, articleBody);
-
-    await page.waitForSelector('h3', { timeout: 60000 });
-    const headlineInput = await page.$('h3');
-
-    await headlineInput.click();
-    await headlineInput.type(obj.headline, { delay: 50 });
-
-    await page.waitForSelector('p[data-testid="editorParagraphText"]', { timeout: 60000 });
-    const articleBodyInput = await page.$('p[data-testid="editorParagraphText"]');
-    
-    await articleBodyInput.click();
-    await articleBodyInput.type(obj.articleBody); //Add delay back {delay: 70}
+    postViaAPI(author.userDetails, obj.headline, obj.articleBody, obj.keywords);
 
     return(obj);
 }

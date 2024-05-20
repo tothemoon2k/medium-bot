@@ -20,7 +20,7 @@ const run = async () => {
           process.env.NODE_ENV === "production"
             ? process.env.PUPPETEER_EXECUTABLE_PATH
             : puppeteer.executablePath(),
-            headless: true,
+            headless: false,
     });
 
     const page = await browser.newPage();
@@ -57,7 +57,7 @@ const run = async () => {
     for(let article of articles){
         try {
             console.log("Writing an article...");
-            const res = await writeArticle(page, article);
+            const res = await writeArticle(page, article, author);
 
             await page.click('button[data-action="show-prepublish"]');
     

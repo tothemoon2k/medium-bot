@@ -5,7 +5,11 @@ const authors = [
         name: "Joel Orion",
         email: "joelorion13@gmail.com",
         topic: "business",
-        pass: process.env.JOEL_ORION_FB_PASS
+        pass: process.env.JOEL_ORION_FB_PASS,
+        apiDetails: {
+            userId: "x",
+            token: process.env.JOEL_ORION_MEDIUM_TOKEN
+        }
     },
     {
         name: "Natalie Baker",
