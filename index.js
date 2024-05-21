@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, polishArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies } = require("./components");
+const { puppeteer, proxyChain, StealthPlugin, login, grabArticles, writeArticle, sendSuccessEmail, sendErrorEmail, delay, authors, proxies } = require("./components");
 
 puppeteer.use(StealthPlugin());
 
@@ -59,13 +59,9 @@ const run = async () => {
             console.log("Writing an article...");
             const res = await writeArticle(page, article, author);
 
-            await page.click('button[data-action="show-prepublish"]');
-    
-            await polishArticle(page, res);
-    
-            await page.click(`button[data-action="publish"][data-testid="publishConfirmButton"]`);
+            console.log(res.data);
 
-            await delay(8000);
+            await delay(5000);
 
             try {
                 await page.waitForSelector('h3[data-testid="publishSuccessTitleText"]', { timeout: 60000 });

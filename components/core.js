@@ -1,7 +1,7 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
-const { generatePrompt } = require("./prompts");
+const { generateClaudePrompt } = require("./prompts");
 const {queryImg} = require("./image");
 const {postViaAPI} = require("./handleAPI");
 
@@ -37,6 +37,7 @@ const login = async (page, author) => {
 
 const grabArticles = async (browser, page) => {
     await page.waitForSelector("article a", { timeout: 60000 });
+    /*
 
     await autoScroll(page, 7);
 
@@ -65,12 +66,18 @@ const grabArticles = async (browser, page) => {
 
     console.log(allArticles);
     return allArticles;
+    */
+
+    return(["https://medium.com/@stephenmoore/skateboarding-taught-me-everything-about-life-e04779da0bef"]);
 };
 
-const generateArticle = async (headline, articleBody) => {
-    const prompt = generatePrompt(headline, articleBody);
+const generateArticle = async (headline, articleBody, imgUrl) => {
+    const prompt = generateClaudePrompt(headline, articleBody, imgUrl);
+
+    console.log(prompt);
+
     const requestParams = {
-      model: "claude-3-haiku-20240307",
+      model: "claude-3-sonnet-20240229",
       max_tokens: 4000,
       messages: [{ role: "user", content: prompt }],
     };
@@ -78,6 +85,7 @@ const generateArticle = async (headline, articleBody) => {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const response = await anthropic.messages.create(requestParams);
+        console.log(response.content[0].text);
         return JSON.parse(response.content[0].text);
       } catch (error) {
         console.error(`Failed to generate message (Attempt #${attempt + 1}):`, error);
@@ -100,26 +108,15 @@ const writeArticle = async (page, link, author) => {
 
     const articleBody = paragraphs.join('\n');
 
-    const imgUrl = await queryImg("About Me & My To Promote Actionable  Business Advice");
-    console.log(imgUrl);
+    const imgUrl = await queryImg(headline);
 
     const obj = await generateArticle(headline, articleBody, imgUrl);
 
-    postViaAPI(author.userDetails, obj.headline, obj.articleBody, obj.keywords);
+    const res = postViaAPI(author.apiDetails, obj.headline, obj.articleBody, obj.keywords);
 
-    return(obj);
+    console.log("From write article:", res);
+
+    return(res);
 }
 
-const polishArticle = async (page, res) => {
-    await delay(2000);
-
-    const keywordStr = res.keywords.map(str => str.trim()).join(', ') + ',';
-
-    const inputField = await page.$('.js-tagInput.tags-input.editable')
-    await inputField.click();
-    await page.type('.js-tagInput.tags-input.editable', keywordStr, {delay: 250});
-
-    await delay(2000);
-}
-
-module.exports = {login, grabArticles, writeArticle, polishArticle };
+module.exports = {login, grabArticles, writeArticle};
