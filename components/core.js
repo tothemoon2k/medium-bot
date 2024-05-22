@@ -1,7 +1,7 @@
 require('dotenv').config();
 const Anthropic = require('@anthropic-ai/sdk');
 const { autoScroll, delay, filterArticlesByClaps } = require("./helper");
-const { generateClaudePrompt } = require("./prompts");
+const { generateAllPrompts } = require("./prompts");
 const {queryImg} = require("./image");
 const {postViaAPI} = require("./handleAPI");
 
@@ -72,28 +72,26 @@ const grabArticles = async (browser, page) => {
 };
 
 const generateArticle = async (headline, articleBody, imgUrl) => {
-    const prompt = generateClaudePrompt(headline, articleBody, imgUrl);
+    const prompts = generateAllPrompts(headline, articleBody, imgUrl);
 
-    console.log(prompt);
+    const responses = [];
 
-    const requestParams = {
-      model: "claude-3-sonnet-20240229",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    };
-  
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const response = await anthropic.messages.create(requestParams);
-        console.log(response.content[0].text);
-        return JSON.parse(response.content[0].text);
-      } catch (error) {
-        console.error(`Failed to generate message (Attempt #${attempt + 1}):`, error);
-      }
+    for (let prompt of prompts) {
+        const requestParams = {
+          model: "claude-3-sonnet-20240229",
+          max_tokens: 4000,
+          messages: [{ role: "user", content: prompt }],
+        };
+    
+        try {
+          const response = await anthropic.messages.create(requestParams);
+          responses.push(response.content[0].text);
+        } catch (error) {
+          console.error(`Failed to generate message for prompt "${prompt}":`, error);
+        }
     }
-  
-    console.error("Failed to generate message after two attempts.");
-    return null;
+
+    return responses;
  };
 
 const writeArticle = async (page, link, author) => {
@@ -108,11 +106,17 @@ const writeArticle = async (page, link, author) => {
 
     const articleBody = paragraphs.join('\n');
 
-    const imgUrl = await queryImg(headline);
+    //const imgUrl = await queryImg(headline);
 
-    const obj = await generateArticle(headline, articleBody, imgUrl);
+    const imgUrl = ""
 
-    const res = postViaAPI(author.apiDetails, obj.headline, obj.articleBody, obj.keywords);
+    const articleDetails = await generateArticle(headline, articleBody, imgUrl);
+
+    console.log(articleDetails[2]);
+
+    console.log("Keywords", articleDetails[2].split(","));
+
+    const res = await postViaAPI(author.apiDetails, articleDetails[0], articleDetails[1], articleDetails[2].split(","));
 
     console.log("From write article:", res);
 

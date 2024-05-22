@@ -30,10 +30,9 @@ const sampleInput = {
   tags: ["football", "sport", "Liverpool"],
 }
 
-const postViaAPI = (userDetails, title, content, tags) => {
-  axios
-    .post(
-      `/v1/users/${userDetails.userId}/posts`,
+const postViaAPI = async (userDetails, title, content, tags) => {
+  try {
+    const res = await axios.post(`/v1/users/${userDetails.userId}/posts`,
       {
         title: title,
         contentFormat: "html",
@@ -51,12 +50,11 @@ const postViaAPI = (userDetails, title, content, tags) => {
         baseURL: "https://api.medium.com",
       }
     )
-    .then((response) => {
-      return(response.data.data);
-    })
-    .catch((error) => {
-      return(error.response.data);
-    });
+
+    return(res.data);
+  } catch (error) {
+    return(error.data);
+  }
 };
 
 module.exports = {postViaAPI};
